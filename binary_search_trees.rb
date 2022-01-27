@@ -41,6 +41,7 @@ class Tree
   end
 
   def build_tree(array = @list)
+    @root = @list[@list.length / 2]
     return if array.length < 2
 
     left = halver(array, true)
@@ -52,10 +53,20 @@ class Tree
     build_tree(right)
     @root.data
   end
+
+  def depth(counter = 0, current_node = @root)
+    return counter if current_node.nil?
+
+    left = current_node.left
+    right = current_node.right
+    depth_finder(counter + 1, left)
+    depth_finder(counter + 1, right)
+  end
 end
 
 array = []
-100.times { array << rand(100) }
+rand(200).times { array << rand(100_000) }
 tree = Tree.new(array)
 tree.build_tree
 tree.pretty
+puts tree.depth

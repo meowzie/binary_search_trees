@@ -54,27 +54,40 @@ class Tree
     @root.data
   end
 
-  def depth(counter = 0, current_node = @root)
-    return counter if current_node.nil?
+  def depth(value)
+    find(value, @root, 0, should_count: true)
+  end
+
+  def height(value, counter = 0, current_node = find(value))
+    return nil if current_node.nil?
+    return counter - 1 if current_node.nil?
     return counter if current_node.right.nil? && current_node.left.nil?
 
-    left = depth(counter + 1, current_node.left)
-    right = depth(counter + 1, current_node.right)
+    left = height(value, counter + 1, current_node.left)
+    right = height(value, counter + 1, current_node.right)
     left >= right ? left : right
   end
 
-  def find(value, current_node = @root)
+  def find(value, current_node = @root, counter = 0, should_count: false)
     return nil if current_node.nil?
-    return current_node if value == current_node.data
+
+    if value == current_node.data
+      return counter if should_count
+
+      return current_node
+    end
 
     current_node = value < current_node.data ? current_node.left : current_node.right
-    find(value, current_node)
+    if should_count
+      find(value, current_node, counter + 1, should_count: true)
+    else
+      find(value, current_node)
+    end
   end
 end
 
-array = []
-rand(200).times { array << rand(100_000) }
-tree = Tree.new(array)
-tree.build_tree
-tree.pretty
-puts tree.depth
+# array = []
+# 20.times { array << rand(100) }
+# tree = Tree.new(array)
+# tree.build_tree
+# tree.pretty

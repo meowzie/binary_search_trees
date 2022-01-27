@@ -58,8 +58,17 @@ class Tree
     return counter if current_node.nil?
     return counter if current_node.right.nil? && current_node.left.nil?
 
-    depth(counter + 1, current_node.left)
-    depth(counter + 1, current_node.right)
+    left = depth(counter + 1, current_node.left)
+    right = depth(counter + 1, current_node.right)
+    left >= right ? left : right
+  end
+
+  def find(value, current_node = @root)
+    return nil if current_node.nil?
+    return current_node if value == current_node.data
+
+    current_node = value < current_node.data ? current_node.left : current_node.right
+    find(value, current_node)
   end
 end
 

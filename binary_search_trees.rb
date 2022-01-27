@@ -57,10 +57,8 @@ class Tree
   def depth(counter = 0, current_node = @root)
     return counter if current_node.nil?
 
-    left = current_node.left
-    right = current_node.right
-    depth(counter + 1, left)
-    depth(counter + 1, right)
+    depth(counter + 1, current_node.left)
+    depth(counter + 1, current_node.right)
   end
 end
 

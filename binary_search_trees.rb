@@ -59,8 +59,8 @@ class Tree
 
     left = current_node.left
     right = current_node.right
-    depth_finder(counter + 1, left)
-    depth_finder(counter + 1, right)
+    depth(counter + 1, left)
+    depth(counter + 1, right)
   end
 end
 

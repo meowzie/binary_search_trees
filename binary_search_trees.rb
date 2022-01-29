@@ -59,10 +59,12 @@ class Tree
   end
 
   def height(value, counter = 0, current_node = find(value))
-    return nil if current_node.nil?
+    return nil if find(value).nil?
     return counter - 1 if current_node.nil?
     return counter if current_node.right.nil? && current_node.left.nil?
 
+    # this is working properly (i.e., allowing the overall function to give the correct results
+    # but right side is seems fishy; must confirm that right side is working as it should and if not, must debug
     left = height(value, counter + 1, current_node.left)
     right = height(value, counter + 1, current_node.right)
     left >= right ? left : right
@@ -78,16 +80,19 @@ class Tree
     end
 
     current_node = value < current_node.data ? current_node.left : current_node.right
-    if should_count
-      find(value, current_node, counter + 1, should_count: true)
-    else
-      find(value, current_node)
+    should_count ? find(value, current_node, counter + 1, should_count: true) : find(value, current_node)
+  end
+
+  def insert(value, current_node = @root)
+    return nil if current_node.data == value
+
+    if current_node.left.nil? && current_node.right.nil?
+      return current_node.left = Node.new(value) if value < current_node.data
+
+      return current_node.right = Node.new(value)
     end
+
+    current_node = value < current_node.data ? current_node.left : current_node.right
+    insert(value, current_node)
   end
 end
-
-# array = []
-# 20.times { array << rand(100) }
-# tree = Tree.new(array)
-# tree.build_tree
-# tree.pretty

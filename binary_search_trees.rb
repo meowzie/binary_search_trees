@@ -95,4 +95,33 @@ class Tree
     current_node = value < current_node.data ? current_node.left : current_node.right
     insert(value, current_node)
   end
+
+  def parent_selector(value)
+    greater_parent = @list.select { |node| node.left.data == value unless node.left.nil? }
+    return greater_parent[0] unless greater_parent.empty?
+
+    @list.select { |node| node.right.data == value unless node.right.nil? }[0]
+  end
+
+  def delete(value)
+    node = find(value)
+    return nil if node.nil?
+
+    parent = parent_selector(node.data)
+    if node.left.nil? && node.right.nil?
+      @list.delete(node)
+      parent.left == node ? parent.left = nil : parent.right = nil
+    elsif node.left && node.right
+      new_node = node.right
+      new_node = new_node.left until new_node.left.nil? && new_node.right.nil?
+      new_parent = parent_selector(new_node.data)
+      new_parent.left == new_node ? new_parent.left = nil : new_parent.right = nil
+      node.data = new_node.data
+      @list.delete(new_node)
+    else
+      child = node.left || node.right
+      @list.delete(node)
+      parent.left == node ? parent.left = child : parent.right = child
+    end
+  end
 end

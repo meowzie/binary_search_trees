@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pry-byebug'
+
 # creates new items in the binary search tree
 class Node
   attr_accessor :data, :right, :left
@@ -151,10 +153,10 @@ class Tree
   def inorder(values = [], root = @root, &block)
     return if root.nil?
 
-    inorder(values, root.left) unless root.left.nil? || values.include?(root.data)
+    inorder(values, root.left, &block) unless root.left.nil? || values.include?(root.data)
     block.call(root.data) if block_given?
     values << root.data
-    inorder(values, root.right)
+    inorder(values, root.right, &block)
     values unless block_given?
   end
 end

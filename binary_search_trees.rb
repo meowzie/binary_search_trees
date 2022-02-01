@@ -147,4 +147,14 @@ class Tree
     preorder(values, current.right, &block)
     values unless block_given?
   end
+
+  def inorder(values = [], root = @root, &block)
+    return if root.nil?
+
+    inorder(values, root.left) unless root.left.nil? || values.include?(root.data)
+    block.call(root.data) if block_given?
+    values << root.data
+    inorder(values, root.right)
+    values unless block_given?
+  end
 end

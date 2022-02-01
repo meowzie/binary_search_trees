@@ -153,10 +153,20 @@ class Tree
   def inorder(values = [], root = @root, &block)
     return if root.nil?
 
-    inorder(values, root.left, &block) unless root.left.nil?
+    inorder(values, root.left, &block)
     block.call(root.data) if block_given?
     values << root.data
     inorder(values, root.right, &block)
+    values unless block_given?
+  end
+
+  def postorder(values = [], root = @root, &block)
+    return if root.nil?
+
+    postorder(values, root.left, &block)
+    postorder(values, root.right, &block)
+    block.call(root.data) if block_given?
+    values << root.data
     values unless block_given?
   end
 end

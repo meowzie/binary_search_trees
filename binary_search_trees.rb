@@ -124,4 +124,27 @@ class Tree
       parent.left == node ? parent.left = child : parent.right = child
     end
   end
+
+  def level_order(queue = Queue.new.push(@root), values = [], &block)
+    return if queue.empty?
+
+    current = queue.shift
+    block.call(current.data) if block_given?
+    queue << current.left if current.left
+    queue << current.right if current.right
+    values << current.data
+
+    level_order(queue, values, &block)
+    values unless block_given?
+  end
+
+  def preorder(values = [], current = @root, &block)
+    return if current.nil?
+
+    block.call(current.data) if block_given?
+    values << current.data
+    preorder(values, current.left, &block)
+    preorder(values, current.right, &block)
+    values unless block_given?
+  end
 end

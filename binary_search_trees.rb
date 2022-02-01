@@ -153,7 +153,7 @@ class Tree
   def inorder(values = [], root = @root, &block)
     return if root.nil?
 
-    inorder(values, root.left, &block) unless root.left.nil? || values.include?(root.data)
+    inorder(values, root.left, &block) unless root.left.nil?
     block.call(root.data) if block_given?
     values << root.data
     inorder(values, root.right, &block)

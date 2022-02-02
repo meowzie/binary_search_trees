@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'pry-byebug'
-
 # creates new items in the binary search tree
 class Node
   attr_accessor :data, :right, :left

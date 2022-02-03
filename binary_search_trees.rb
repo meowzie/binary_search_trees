@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pry-byebug'
+
 # creates new items in the binary search tree
 class Node
   attr_accessor :data, :right, :left
@@ -15,9 +17,8 @@ end
 class Tree
   attr_accessor :root, :list
 
-  def initialize(array)
-    @root = 0
-    @list = array.sort.uniq.map { |value| Node.new(value) }
+  def initialize
+    @root = nil
   end
 
   def pretty(node = @root, prefix = '', is_left = true)
@@ -40,18 +41,26 @@ class Tree
     @root.right = right[right.length / 2] unless right[right.length / 2] == @root
   end
 
-  def build_tree(array = @list)
-    @root = @list[@list.length / 2]
+  def sorter(array)
+    if array.any? { |item| item.instance_of?(Integer) }
+      array.sort.uniq.map { |item| Node.new(item) }
+    else
+      array
+    end
+  end
+
+  def build_tree(array)
+    array = sorter(array)
+    @root = Node.new(nil) if array.empty?
     return if array.length < 2
 
+    @root = array[array.length / 2]
     left = halver(array, true)
     right = halver(array, false)
-    @root = array[array.length / 2]
     root_setter(left, right)
-    @root = @list[@list.length / 2]
     build_tree(left)
     build_tree(right)
-    @root.data
+    @root = array[array.length / 2]
   end
 
   def depth(value)
@@ -70,57 +79,60 @@ class Tree
     left >= right ? left : right
   end
 
-  def find(value, current_node = @root, counter = 0, should_count: false)
-    return nil if current_node.nil?
+  def find(value, current = @root, counter = 0, should_count: false)
+    return nil if current.nil? || current.data.nil?
 
-    if value == current_node.data
+    if value == current.data
       return counter if should_count
 
-      return current_node
+      return current
     end
 
-    current_node = value < current_node.data ? current_node.left : current_node.right
-    should_count ? find(value, current_node, counter + 1, should_count: true) : find(value, current_node)
+    current = value < current.data ? current.left : current.right
+    should_count ? find(value, current, counter + 1, should_count: true) : find(value, current)
   end
 
-  def insert(value, current_node = @root)
-    return nil if current_node.data == value
+  def insert(value, current = @root)
+    return nil if current.data == value
 
-    if current_node.left.nil? && current_node.right.nil?
-      return current_node.left = Node.new(value) if value < current_node.data
+    if current.left.nil? && current.right.nil?
+      return current.left = Node.new(value) if value < current.data
 
-      return current_node.right = Node.new(value)
+      return current.right = Node.new(value)
     end
 
-    current_node = value < current_node.data ? current_node.left : current_node.right
-    insert(value, current_node)
+    current = value < current.data ? current.left : current.right
+    insert(value, current)
   end
 
-  def parent_selector(value)
-    greater_parent = @list.select { |node| node.left.data == value unless node.left.nil? }
-    return greater_parent[0] unless greater_parent.empty?
-
-    @list.select { |node| node.right.data == value unless node.right.nil? }[0]
+  def parent_selector(node)
+    parent = @root
+    until parent.left == node || parent.right == node || parent == node
+      parent = parent.left if node.data < parent.data
+      parent = parent.right if node.data > parent.data
+    end
+    parent
   end
 
   def delete(value)
     node = find(value)
     return nil if node.nil?
 
-    parent = parent_selector(node.data)
+    parent = parent_selector(node)
     if node.left.nil? && node.right.nil?
-      @list.delete(node)
+      return @root = Node.new(nil) if node == @root
+
       parent.left == node ? parent.left = nil : parent.right = nil
     elsif node.left && node.right
-      new_node = node.right
-      new_node = new_node.left until new_node.left.nil? && new_node.right.nil?
-      new_parent = parent_selector(new_node.data)
-      new_parent.left == new_node ? new_parent.left = nil : new_parent.right = nil
-      node.data = new_node.data
-      @list.delete(new_node)
+      child = node.right
+      child = child.left until child.left.nil?
+      parent = parent_selector(child)
+      parent.left == child ? parent.left = nil : parent.right = nil
+      node.data = child.data
     else
       child = node.left || node.right
-      @list.delete(node)
+      return @root = child if node == @root
+
       parent.left == node ? parent.left = child : parent.right = child
     end
   end
@@ -168,3 +180,13 @@ class Tree
     values unless block_given?
   end
 end
+
+array = [36, 43, 50, 59]
+# 4.times { array.push(rand(100)) }
+tree = Tree.new
+tree.build_tree(array)
+tree.pretty
+binding.pry
+tree.insert(32)
+tree.insert(37)
+tree.delete(50)

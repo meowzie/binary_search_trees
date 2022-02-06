@@ -92,17 +92,14 @@ class Tree
     should_count ? find(value, current, counter + 1, should_count: true) : find(value, current)
   end
 
-  def insert(value, current = @root)
-    return nil if current.data == value
+  def insert(value, root = @root, current = @root)
+    node = find(value)
+    return nil if node
 
-    if current.left.nil? && current.right.nil?
-      return current.left = Node.new(value) if value < current.data
+    root = root.data > value ? root.left : root.right
+    return current.data > value ? current.left = Node.new(value) : current.right = Node.new(value) if root.nil?
 
-      return current.right = Node.new(value)
-    end
-
-    current = value < current.data ? current.left : current.right
-    insert(value, current)
+    insert(value, root, root)
   end
 
   def parent_selector(node)
@@ -141,7 +138,7 @@ class Tree
     return if queue.empty?
 
     current = queue.shift
-    block.call(current.data) if block_given?
+    block.call(current) if block_given?
     queue << current.left if current.left
     queue << current.right if current.right
     values << current.data
@@ -153,7 +150,7 @@ class Tree
   def preorder(values = [], current = @root, &block)
     return if current.nil?
 
-    block.call(current.data) if block_given?
+    block.call(current) if block_given?
     values << current.data
     preorder(values, current.left, &block)
     preorder(values, current.right, &block)
@@ -164,7 +161,7 @@ class Tree
     return if root.nil?
 
     inorder(values, root.left, &block)
-    block.call(root.data) if block_given?
+    block.call(root) if block_given?
     values << root.data
     inorder(values, root.right, &block)
     values unless block_given?
@@ -175,7 +172,7 @@ class Tree
 
     postorder(values, root.left, &block)
     postorder(values, root.right, &block)
-    block.call(root.data) if block_given?
+    block.call(root) if block_given?
     values << root.data
     values unless block_given?
   end
@@ -186,7 +183,3 @@ array = [36, 43, 50, 59]
 tree = Tree.new
 tree.build_tree(array)
 tree.pretty
-binding.pry
-tree.insert(32)
-tree.insert(37)
-tree.delete(50)

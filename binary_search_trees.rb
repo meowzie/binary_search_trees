@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'pry-byebug'
-
 # creates new items in the binary search tree
 class Node
   attr_accessor :data, :right, :left
@@ -202,3 +200,20 @@ class Tree
     build_tree(inorder)
   end
 end
+
+tree = Tree.new
+tree.build_tree(Array.new(15) { rand(1..100) })
+tree.pretty
+p tree.balanced?
+p tree.level_order
+p tree.preorder
+p tree.inorder
+p tree.postorder
+5.times { tree.insert(rand(100..200)) }
+tree.rebalance unless tree.balanced?
+tree.pretty
+p tree.balanced?
+p tree.level_order
+p tree.preorder
+p tree.inorder
+p tree.postorder

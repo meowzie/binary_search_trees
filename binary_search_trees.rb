@@ -189,4 +189,12 @@ class Tree
     values << root.data
     values unless block_given?
   end
+
+  def balanced?
+    leaf_values = []
+    level_order { |node| leaf_values << node.data if node.left.nil? || node.right.nil? }
+    depths = leaf_values.map { |value| depth(value) }
+    first = depths[0]
+    depths.none? { |depth| (first - depth).abs > 1 }
+  end
 end

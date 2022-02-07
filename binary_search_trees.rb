@@ -49,18 +49,18 @@ class Tree
     end
   end
 
-  def build_tree(array)
-    array = sorter(array)
-    @root = Node.new(nil) if array.empty?
-    return if array.length < 2
+  def build_tree(current, original = current)
+    current = sorter(current) if current == original
+    @root = Node.new(nil) if current.empty?
+    return if current.length < 2
 
-    @root = array[array.length / 2]
-    left = halver(array, true)
-    right = halver(array, false)
+    @root = current[current.length / 2]
+    left = halver(current, true)
+    right = halver(current, false)
     root_setter(left, right)
-    build_tree(left)
-    build_tree(right)
-    @root = array[array.length / 2]
+    build_tree(left, original)
+    build_tree(right, original)
+    @root = current[current.length / 2]
   end
 
   def depth(value)
@@ -92,46 +92,59 @@ class Tree
     should_count ? find(value, current, counter + 1, should_count: true) : find(value, current)
   end
 
-  def insert(value, root = @root, current = @root)
+  def insert(value, current = @root, root = @root)
     node = find(value)
     return nil if node
 
-    root = root.data > value ? root.left : root.right
-    return current.data > value ? current.left = Node.new(value) : current.right = Node.new(value) if root.nil?
+    current = current.data > value ? current.left : current.right
+    return root.data > value ? root.left = Node.new(value) : root.right = Node.new(value) if current.nil?
 
-    insert(value, root, root)
+    insert(value, current, current)
   end
 
-  def parent_selector(node)
-    parent = @root
-    until parent.left == node || parent.right == node || parent == node
-      parent = parent.left if node.data < parent.data
-      parent = parent.right if node.data > parent.data
-    end
-    parent
-  end
-
-  def delete(value)
+  def delete(value, current = @root, root = @root)
     node = find(value)
-    return nil if node.nil?
+    return nil unless node
 
-    parent = parent_selector(node)
-    if node.left.nil? && node.right.nil?
-      return @root = Node.new(nil) if node == @root
+    current = if current.data > value
+                current.left
+              elsif current.data < value
+                current.right
+              else
+                current
+              end
+    if current.data == value
+      if root.data > value
+        return root.left = nil if current.left.nil? && current.right.nil?
+        return root.left = current.left || current.right if current.left.nil? || current.right.nil?
 
-      parent.left == node ? parent.left = nil : parent.right = nil
-    elsif node.left && node.right
-      child = node.right
-      child = child.left until child.left.nil?
-      parent = parent_selector(child)
-      parent.left == child ? parent.left = nil : parent.right = nil
-      node.data = child.data
-    else
-      child = node.left || node.right
-      return @root = child if node == @root
+        current = current.left
+        current = current.right until current.right.nil?
+        data = current.data
+        delete(data)
+        return root.left.data = data
+      elsif root.data < value
+        return root.right = nil if current.left.nil? && current.right.nil?
+        return root.right = current.left || current.right if current.left.nil? || current.right.nil?
 
-      parent.left == node ? parent.left = child : parent.right = child
+        current = current.left
+        current = current.right until current.right.nil?
+        data = current.data
+        delete(data)
+        return root.right.data = data
+      else
+        return root = nil if current.left.nil? && current.right.nil?
+        return root = current.left || current.right if current.left.nil? || current.right.nil?
+
+        current = current.left
+        current = current.right until current.right.nil?
+        data = current.data
+        delete(data)
+        return root.data = data
+      end
     end
+
+    delete(value, current, current)
   end
 
   def level_order(queue = Queue.new.push(@root), values = [], &block)
@@ -177,9 +190,3 @@ class Tree
     values unless block_given?
   end
 end
-
-array = [36, 43, 50, 59]
-# 4.times { array.push(rand(100)) }
-tree = Tree.new
-tree.build_tree(array)
-tree.pretty

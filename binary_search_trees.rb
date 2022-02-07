@@ -197,4 +197,8 @@ class Tree
     first = depths[0]
     depths.none? { |depth| (first - depth).abs > 1 }
   end
+
+  def rebalance
+    build_tree(inorder)
+  end
 end
